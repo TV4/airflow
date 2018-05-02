@@ -7,9 +7,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -120,3 +120,64 @@ class GoogleCloudStorageCreateBucketOperator(BaseOperator):
                            location=self.location,
                            project_id=self.project_id,
                            labels=self.labels)
+
+class GoogleCloudStorageDeleteObjectOperator(BaseOperator):
+    """
+    Deletes an object in Google Cloud Storage bucket
+
+    :param bucket_name: The name of the bucket.
+    :type bucket_name: string
+    :param object: The name of the object to delete
+    :type object: string
+    :param generation: The generation of the object to delete
+    :type generation: string
+    :param google_cloud_storage_conn_id: The connection ID to use when
+        connecting to Google cloud storage.
+    :type google_cloud_storage_conn_id: string
+    :param delegate_to: The account to impersonate, if any.
+        For this to work, the service account making the request must
+        have domain-wide delegation enabled.
+    :type delegate_to: string
+
+    **Example**:
+        The following Operator would delete an object ``test-object.csv``
+        from the bucket ``test-bucket`` ::
+
+            DeleteObjectFromBucket = GoogleCloudStorageDeleteObjectOperator(
+                task_id='DeleteObjectFromBucket',
+                bucket_name='test-bucket',
+                object='test-object.csv',
+                google_cloud_storage_conn_id='airflow-service-account'
+            )
+    """
+
+    template_fields = ('bucket_name', 'object', 'generation')
+    ui_color = '#f0eee4'
+
+    @apply_defaults
+    def __init__(self,
+                 bucket_name,
+                 object,
+                 generation=None,
+                 google_cloud_storage_conn_id='google_cloud_default',
+                 delegate_to=None,
+                 *args,
+                 **kwargs):
+        super(GoogleCloudStorageDeleteObjectOperator, self).__init__(*args, **kwargs)
+        self.bucket_name = bucket_name
+        self.object = object
+        self.generation = generation
+
+        self.google_cloud_storage_conn_id = google_cloud_storage_conn_id
+        self.delegate_to = delegate_to
+
+    def execute(self, context):
+
+        hook = GoogleCloudStorageHook(
+            google_cloud_storage_conn_id=self.google_cloud_storage_conn_id,
+            delegate_to=self.delegate_to
+        )
+
+        hook.delete(bucket=self.bucket_name,
+                    object=self.object,
+                    generation=self.generation)
