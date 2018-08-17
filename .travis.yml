@@ -110,3 +110,7 @@ script:
   - ./scripts/ci/travis_script.sh
 after_success:
   - codecov
+branches:
+  only:
+  - master 
+ 
