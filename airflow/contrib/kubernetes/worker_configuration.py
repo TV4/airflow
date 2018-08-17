@@ -85,6 +85,9 @@ class WorkerConfiguration(LoggingMixin):
         }
         if self.kube_config.airflow_configmap:
             env['AIRFLOW__CORE__AIRFLOW_HOME'] = self.worker_airflow_home
+        # Override its value in configuration
+        if self.kube_config.worker_airflow_dags:
+            env['AIRFLOW__CORE__DAGS_FOLDER'] = self.worker_airflow_dags
         return env
 
     def _get_secrets(self):
