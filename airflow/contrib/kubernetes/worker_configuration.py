@@ -153,7 +153,7 @@ class WorkerConfiguration(LoggingMixin):
             'name': dags_volume_name,
             'mountPath': dag_volume_mount_path,
             'readOnly': True,
-            'sub_path': dags_volume_subpath
+            'subPath': dags_volume_subpath
         }, {
             'name': logs_volume_name,
             'mountPath': self.worker_airflow_logs
