@@ -112,5 +112,5 @@ after_success:
   - codecov
 branches:
   only:
-  - fix-k8sexecutor
+  - master
  

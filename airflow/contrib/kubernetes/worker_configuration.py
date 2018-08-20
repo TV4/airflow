@@ -30,8 +30,17 @@ class WorkerConfiguration(LoggingMixin):
     def __init__(self, kube_config):
         self.kube_config = kube_config
         self.worker_airflow_home = self.kube_config.airflow_home
-        self.worker_airflow_dags = self.kube_config.dags_folder
-        self.worker_airflow_logs = self.kube_config.base_log_folder
+        # Using worker's configurations instead of deriving them from
+        # [kubernetes] the scheduler's configuration
+        if self.kube_config.worker_airflow_dags:
+            self.worker_airflow_dags = self.kube_config.worker_airflow_dags
+        else:
+            self.worker_airflow_dags = self.kube_config.dags_folder
+  
+        if self.kube_config.worker_airflow_logs:
+            self.worker_airflow_logs = self.kube_config.worker_airflow_logs
+        else:
+            self.worker_airflow_logs = self.kube_config.base_log_folder
         super(WorkerConfiguration, self).__init__()
 
     def _get_init_containers(self, volume_mounts):
@@ -144,11 +153,16 @@ class WorkerConfiguration(LoggingMixin):
                 self.worker_airflow_dags,
                 self.kube_config.git_subpath
             )
+            
+        dags_volume_subpath = 'None'
+        if self.kube_config.dags_volume_subpath:
+            dags_volume_subpath = self.kube_config.dags_volume_subpath
 
         volume_mounts = [{
             'name': dags_volume_name,
             'mountPath': dag_volume_mount_path,
-            'readOnly': True
+            'readOnly': True,
+            'sub_path': dags_volume_subpath
         }, {
             'name': logs_volume_name,
             'mountPath': self.worker_airflow_logs
