@@ -81,13 +81,15 @@ class WorkerConfiguration(LoggingMixin):
         """Defines any necessary environment variables for the pod executor"""
         env = {
             'AIRFLOW__CORE__DAGS_FOLDER': '/tmp/dags',
-            'AIRFLOW__CORE__EXECUTOR': 'LocalExecutor'
+            'AIRFLOW__CORE__EXECUTOR': 'LocalExecutor',
+            'DAGS_FOLDER': '/tmp/dags'
         }
         if self.kube_config.airflow_configmap:
             env['AIRFLOW__CORE__AIRFLOW_HOME'] = self.worker_airflow_home
         # Override its value in configuration
         if self.worker_airflow_dags:
             env['AIRFLOW__CORE__DAGS_FOLDER'] = self.worker_airflow_dags
+            env['DAGS_FOLDER'] = self.worker_airflow_dags
         return env
 
     def _get_secrets(self):
