@@ -21,6 +21,7 @@ import os
 import sys
 from tempfile import NamedTemporaryFile
 
+from airflow.exceptions import AirflowException
 from airflow.hooks.S3_hook import S3Hook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
